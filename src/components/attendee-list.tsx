@@ -7,9 +7,114 @@ import {
   ChevronsRight,
 } from "lucide-react";
 
+import dayjs from "dayjs";
+import "dayjs/locale/pt-br";
+import relativeTime from "dayjs/plugin/relativeTime";
+
 import { IconButton } from "./icon-button";
+import { Table } from "./table/table";
+import { TableHeader } from "./table/table-header";
+import { TableCell } from "./table/table-cell";
+import { TableRow } from "./table/table-row";
+import { ChangeEvent, useEffect, useState } from "react";
+
+dayjs.extend(relativeTime);
+dayjs.locale("pt-br");
+
+interface iAttendee {
+  id: string;
+  name: string;
+  email: string;
+  checkedInAt: string;
+  createdAt: string | null;
+}
 
 export function AttendeeList() {
+  const [attendees, setAttendees] = useState<iAttendee[]>([]);
+
+  const [total, setTotal] = useState(0);
+
+  // define o estado de acordo com valor achado na URL
+  const [search, setSearch] = useState(() => {
+    const url = new URL(window.location.toString());
+
+    if (url.searchParams.has("search")) {
+      return url.searchParams.get("search") || "";
+    }
+
+    return "";
+  });
+
+  const [page, setPage] = useState(() => {
+    const url = new URL(window.location.toString());
+
+    if (url.searchParams.has("page")) {
+      return Number(url.searchParams.get("page"));
+    }
+
+    return 1;
+  });
+
+  const totalPages = Math.ceil(total / 10);
+
+  function goToLastPage() {
+    setCurrentPage(totalPages);
+  }
+
+  function goToFirstPage() {
+    setCurrentPage(1);
+  }
+
+  function goToNextPage() {
+    setCurrentPage(page + 1);
+  }
+
+  function goToPreviousPage() {
+    if (page > 1) {
+      setCurrentPage(page - 1);
+    }
+  }
+
+  function setCurrentPage(page: number) {
+    const url = new URL(window.location.toString());
+    url.searchParams.set("page", String(page));
+    window.history.pushState({}, "", url);
+
+    setPage(page);
+  }
+
+  function setCurrentSearch(search: string) {
+    const url = new URL(window.location.toString());
+    url.searchParams.set("search", search);
+    window.history.pushState({}, "", url);
+
+    setSearch(search);
+  }
+
+  function onSearchInputChanged(event: ChangeEvent<HTMLInputElement>) {
+    setCurrentSearch(event.target.value);
+    setCurrentPage(1);
+  }
+
+  useEffect(() => {
+    const url = new URL(
+      "http://localhost:3333/events/9e9bd979-9d10-4915-b339-3786b1634f33/attendees"
+    );
+
+    url.searchParams.set("pageIndex", String(page - 1));
+
+    if (search?.length > 0) {
+      url.searchParams.set("query", search);
+    }
+
+    fetch(url)
+      .then((response) => response.json())
+      .then((data) => {
+        setAttendees(data.attendees);
+        setTotal(data.total);
+      });
+  }, [page, search]);
+
   return (
     <div className="flex flex-col gap-4">
       <div className="flex gap-3 items-center">
@@ -18,115 +123,100 @@ export function AttendeeList() {
         <div className="flex items-center gap-3 w-72 px-3 py-1.5 border border-white/10 rounded-lg">
           <Search className="size-4 text-emerald-300" />
           <input
-            className="bg-transparent flex-1 outline-none border-0 p-0 text-sm"
+            className="bg-transparent flex-1 outline-none border-0 p-0 text-sm focus:ring-0"
             type="text"
             placeholder="Buscar participante..."
+            onChange={onSearchInputChanged}
+            value={search}
           />
         </div>
       </div>
 
-      <div className="border border-white/10 rounded-lg">
-        <table className="w-full">
-          <thead>
-            <tr className="border-b border-white/10">
-              <th
-                style={{ width: 48 }}
-                className="py-3 px-4 text-sm font-semibold text-left"
-              >
-                <input
-                  type="checkbox"
-                  className="size-4 bg-black/20 rounded border border-white/10"
-                />
-              </th>
+      <Table>
+        <thead>
+          <TableRow className="border-b border-white/10">
+            <TableHeader style={{ width: 48 }}>
+              <input
+                type="checkbox"
+                className="size-4 bg-black/20 rounded border border-white/10"
+              />
+            </TableHeader>
 
-              <th className="py-3 px-4 text-sm font-semibold text-left">
-                Código
-              </th>
-              <th className="py-3 px-4 text-sm font-semibold text-left">
-                Participante
-              </th>
-              <th className="py-3 px-4 text-sm font-semibold text-left">
-                Data de Inscrição
-              </th>
-              <th className="py-3 px-4 text-sm font-semibold text-left">
-                Data do Check-in
-              </th>
-              <th
-                style={{ width: 64 }}
-                className="py-3 px-4 text-sm font-semibold text-left"
-              ></th>
-            </tr>
-          </thead>
+            <TableHeader>Código</TableHeader>
+            <TableHeader>Participante</TableHeader>
+            <TableHeader>Data de Inscrição</TableHeader>
+            <TableHeader>Data do Check-in</TableHeader>
+            <TableHeader style={{ width: 64 }}></TableHeader>
+          </TableRow>
+        </thead>
 
-          <tbody>
-            {Array.from({ length: 8 }).map((_, i) => {
-              return (
-                <tr
-                  key={i}
-                  className="border-b border-white/10 hover:bg-white/5"
-                >
-                  <td className="py-3 px-4 text-sm text-zinc-300">
-                    <input
-                      type="checkbox"
-                      className="size-4 bg-black/20 rounded border border-white/10"
-                    />
-                  </td>
-                  <td className="py-3 px-4 text-sm text-zinc-300">123122</td>
-                  <td className="py-3 px-4 text-sm text-zinc-300">
-                    <div className="flex flex-col gap-1">
-                      <span className="font-semibold text-white">
-                        Henrique Sousa
-                      </span>
-                      <span>henrique@gmail.com</span>
-                    </div>
-                  </td>
-                  <td className="py-3 px-4 text-sm text-zinc-300">
-                    7 dias atrás
-                  </td>
-                  <td className="py-3 px-4 text-sm text-zinc-300">
-                    3 dias atrás
-                  </td>
-                  <td className="py-3 px-4 text-sm text-zinc-300">
-                    <IconButton transparent>
-                      <MoreHorizontal className="size-4" />
-                    </IconButton>
-                  </td>
-                </tr>
-              );
-            })}
-          </tbody>
-          <tfoot>
-            <tr>
-              <td className="py-3 px-4 text-sm text-zinc-300" colSpan={3}>
-                Mostrando 10 de 228 itens
-              </td>
-              <td
-                className="py-3 px-4 text-sm text-zinc-300 text-right"
-                colSpan={3}
-              >
-                <div className="inline-flex items-center gap-8">
-                  <span>Página 1 de 23</span>
-
-                  <div className="flex gap-1.5">
-                    <IconButton>
-                      <ChevronsLeft className="size-4" />
-                    </IconButton>
-                    <IconButton>
-                      <ChevronLeft className="size-4" />
-                    </IconButton>
-                    <IconButton>
-                      <ChevronRight className="size-4" />
-                    </IconButton>
-                    <IconButton>
-                      <ChevronsRight className="size-4" />
-                    </IconButton>
+        <tbody>
+          {attendees.map((attendee) => {
+            return (
+              <TableRow key={attendee.id}>
+                <TableCell>
+                  <input
+                    type="checkbox"
+                    className="size-4 bg-black/20 rounded border border-white/10"
+                  />
+                </TableCell>
+                <TableCell>{attendee.id}</TableCell>
+                <TableCell>
+                  <div className="flex flex-col gap-1">
+                    <span className="font-semibold text-white">
+                      {attendee.name}
+                    </span>
+                    <span>{attendee.email}</span>
                   </div>
+                </TableCell>
+                <TableCell>{dayjs().to(attendee.createdAt)}</TableCell>
+                <TableCell>
+                  {attendee.checkedInAt === null ? (
+                    <span className="text-zinc-600">Não fez check-in</span>
+                  ) : (
+                    dayjs().to(attendee.checkedInAt)
+                  )}
+                </TableCell>
+
+                <TableCell>
+                  <IconButton transparent>
+                    <MoreHorizontal className="size-4" />
+                  </IconButton>
+                </TableCell>
+              </TableRow>
+            );
+          })}
+        </tbody>
+        <tfoot>
+          <TableRow>
+            <TableCell colSpan={3}>
+              Mostrando {attendees?.length} de {total} itens
+            </TableCell>
+            <TableCell className="text-right" colSpan={3}>
+              <div className="inline-flex items-center gap-8">
+                <span>
+                  Página {page} de {totalPages}
+                </span>
+
+                <div className="flex gap-1.5">
+                  <IconButton onClick={goToFirstPage}>
+                    <ChevronsLeft className="size-4" />
+                  </IconButton>
+                  <IconButton onClick={goToPreviousPage}>
+                    <ChevronLeft className="size-4" />
+                  </IconButton>
+                  <IconButton onClick={goToNextPage}>
+                    <ChevronRight className="size-4" />
+                  </IconButton>
+                  <IconButton onClick={goToLastPage}>
+                    <ChevronsRight className="size-4" />
+                  </IconButton>
                 </div>
-              </td>
-            </tr>
-          </tfoot>
-        </table>
-      </div>
+              </div>
+            </TableCell>
+          </TableRow>
+        </tfoot>
+      </Table>
     </div>
   );
 }
