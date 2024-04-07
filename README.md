@@ -1,30 +1,40 @@
-# React + TypeScript + Vite
+# Pass In - Nlw Unite
+Aplicação de gestão de participantes em eventos.
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+![pass-in-thumb](https://github.com/hsousadev/pass-in-react-web/assets/54003876/b7c6bf99-6d20-4530-bd5a-327079426fb2)
 
-Currently, two official plugins are available:
+![pass-in-web-cover](https://github.com/hsousadev/pass-in-react-web/assets/54003876/add3eeae-9027-4fe3-9861-afeffd7dc929)
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## 🚀 Build
 
-## Expanding the ESLint configuration
+1. É necessário ter os seguintes requisitos pré-instalados
+- [Git](https://git-scm.com/)
+- [Node](https://nodejs.org/en/)
 
-If you are developing a production application, we recommend updating the configuration to enable type aware lint rules:
+<br />
 
-- Configure the top-level `parserOptions` property like this:
+2. Clone todos os repositórios
 
-```js
-export default {
-  // other rules...
-  parserOptions: {
-    ecmaVersion: 'latest',
-    sourceType: 'module',
-    project: ['./tsconfig.json', './tsconfig.node.json'],
-    tsconfigRootDir: __dirname,
-  },
-}
+- Front-end: https://github.com/hsousadev/pass-in-react-web
+- Back-end: https://github.com/rocketseat-education/nlw-unite-nodejs
+
+3. Acesse a pasta de cada repositório
+```
+cd <nome-do-repositório> 
 ```
 
-- Replace `plugin:@typescript-eslint/recommended` to `plugin:@typescript-eslint/recommended-type-checked` or `plugin:@typescript-eslint/strict-type-checked`
-- Optionally add `plugin:@typescript-eslint/stylistic-type-checked`
-- Install [eslint-plugin-react](https://github.com/jsx-eslint/eslint-plugin-react) and add `plugin:react/recommended` & `plugin:react/jsx-runtime` to the `extends` list
+4. Instale as dependências
+```
+npm install
+```
+```
+yarn
+```
+
+5. Rode o servidor e web com
+```
+npm run dev
+```
+
+6. Pronto! Estarão disponíveis no localhost padrão ✅
+
